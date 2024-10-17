@@ -1,4 +1,4 @@
-# cs411-tutorials
+# CS 411W Tutorials
 This repository holds the tutorials with guidance to kickstart the semester for CS 411 W - Workforce Development
 
 Students can pick form the following tutorials:
