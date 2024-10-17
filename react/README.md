@@ -223,3 +223,172 @@ Note: the text has been modified with h1 heading!
 ## Congratluations, you are now fetching data from the backend
 
 
+# Database Development using MongoDB with Docker
+## Step 1: Install `mongodb` package in `development` directory:
+- For Linux:
+```bash
+docker run --rm -v "$(pwd)/backend":/usr/src/app -w /usr/src/app node:14-alpine npm install mongodb
+```
+- For Windows:
+```bash
+docker run --rm -v "%cd%/backend":/usr/src/app -w /usr/src/app node:14-alpine npm install mongodb
+```
+## Step 2: Install axios packages in development directory:
+- For Linux:
+```bash
+docker run --rm -v "$(pwd)/frontend":/usr/src/app -w /usr/src/app node:14-alpine npm install axios
+```
+- For Windows:
+```bash
+docker run --rm -v "%cd%/frontend":/usr/src/app -w /usr/src/app node:14-alpine npm install axios
+```
+
+## Step 3: Add MongoDB service in `docker-compose.yml`
+- Add the db service as dependency, make sure the backend service looks like this:
+```yml
+services:
+ backend:
+   build: ./backend
+   ports:
+     - '5000:5000'
+   depends_on:
+     - db
+   networks:
+     - app-network
+```
+- Replace the following:
+```yml
+networks:
+ app-network:
+   driver: bridge  
+```
+- with:
+  ```yml
+   db:
+   image: mongo:4.4
+   ports:
+     - '27017:27017'
+   volumes:
+     - mongo-data:/data/db
+   networks:
+     - app-network
+
+
+networks:
+ app-network:
+   driver: bridge
+
+
+volumes:
+ mongo-data:
+```
+
+## Step 4: MongoDB dependency + adding proxy
+- The `frontend/package.json` should look like this:
+```json
+ "dependencies": {
+   "@testing-library/jest-dom": "^5.17.0",
+   "@testing-library/react": "^13.4.0",
+   "@testing-library/user-event": "^13.5.0",
+   "axios": "^1.7.7",
+   "react": "^18.3.1",
+   "react-dom": "^18.3.1",
+   "react-scripts": "5.0.1",
+   "web-vitals": "^2.1.4",
+   "mongodb": "^6.9.0" // add this line
+ },
+ "proxy": "http://backend:5000",
+```
+
+## Step 5: Update the backend code
+- In `backend/index.js` to use MongoDB:
+```javascript
+const express = require('express');
+const { MongoClient } = require('mongodb');
+const app = express();
+const port = 5000;
+
+
+const mongoURL = 'mongodb://db:27017';
+const client = new MongoClient(mongoURL);
+
+
+app.get('/', (req, res) => {
+ res.send('Hello from Backend');
+});
+
+
+app.get('/api', async (req, res) => {
+ try {
+   await client.connect();
+   const database = client.db('testdb');
+   const collection = database.collection('testcol');
+
+
+   const doc = { message: 'Hello from MongoDB!' };
+   await collection.insertOne(doc);
+
+
+   const result = await collection.findOne(doc);
+   res.send(result.message);
+ } catch (err) {
+   console.error(err);
+   res.status(500).send('Error connecting to database');
+ } finally {
+   await client.close();
+ }
+});
+
+
+app.listen(port, () => {
+ console.log(`Backend server is running on port ${port}`);
+});
+```
+
+- Add a `.gitignore` file in the `backend` directory:
+```gitignore
+node_modules
+Npm-debug.log
+```
+
+## Step 6: Rebuild Docker containers
+- In `development` directory execute:
+```bash
+docker-compose down
+docker-compose up -–build
+```
+
+## Step 7: Verify connectivity between Frontend and Backend
+- Enter the frontend container’s shell:
+  ```bash
+  docker-compose exec frontend sh
+  ```
+- Quickly install curl
+  ```bash
+  apk add curl
+  ```
+- Use curl to test the connection to the backend:
+  ```bash
+  curl http://backend:5000/api
+  ```
+- Should display the string: Hello from MongoDB!
+  ```bash
+  exit
+  ```
+## Step 8: Test the application
+- Access the frontend by visiting  [http://localhost:3000](http://localhost:3000) or [http://localhost:3000/api](http://localhost:3000/api) to see:
+
+- Access the backend:
+  - Notice the difference between different paths:
+  - Visit [http://localhost:5000/](http://localhost:5000/) to view:
+
+  
+  - Visit [http://localhost:5000/api](http://localhost:5000/api) to view:
+
+
+## Congratulations! You are now fetching data using MongoDB and displaying it in the front end!
+
+
+
+
+
