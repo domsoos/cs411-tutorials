@@ -263,8 +263,8 @@ networks:
    driver: bridge  
 ```
 - with:
-  ```yml
-   db:
+```yml
+db:
    image: mongo:4.4
    ports:
      - '27017:27017'
@@ -273,11 +273,9 @@ networks:
    networks:
      - app-network
 
-
 networks:
  app-network:
    driver: bridge
-
 
 volumes:
  mongo-data:
