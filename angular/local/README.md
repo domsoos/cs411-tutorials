@@ -1,4 +1,4 @@
-# How to use Angular + NodeJS
+# Tutorial #2.1: Local Angular, NodeJS with MongoDB
 
 - Prereqs:
   - Make sure npm && node is installed:
@@ -45,5 +45,5 @@ app.listen(PORT, () => {
 });
 ```
 
-## Step 
+## Step 4
 
