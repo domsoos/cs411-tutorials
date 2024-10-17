@@ -1,4 +1,4 @@
-# Tutorial 4.1: Local Setup on macOS/Linux and Windows
+# Tutorial 3.1: Local Setup on macOS/Linux and Windows
 - Prerequisites
   - Python 3.6+ installed.
   - pip  installed.

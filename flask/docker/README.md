@@ -1,4 +1,4 @@
-# Tutorial 4.2: Dockerized Setup with Separate Containers
+# Tutorial 3.2: Dockerized Setup with Separate Containers
 
 - Prerequisites
   - Docker installed.
