@@ -10,5 +10,6 @@ Students are encouraged to complete each of the following tutorials:
 - Tutorial 3: Flask PostgreSQL
   - [3.1](https://github.com/domsoos/cs411-tutorials/tree/main/flask/local) Local Setup
   - [3.2](https://github.com/domsoos/cs411-tutorials/tree/main/flask/docker) Docker 
-- More coming soon..
-
+- Tutorial 4: Full-Stack Django with MySQL
+  - [4.1](https://github.com/domsoos/cs411-tutorials/tree/main/django/local) Local Setup
+  - [4.2](https://github.com/domsoos/cs411-tutorials/tree/main/django/docker) Docker 
