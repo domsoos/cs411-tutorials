@@ -211,13 +211,151 @@ INSTALLED_APPS = [
 ```
 
 ## Step 6: Defining Models
+- Edit `blog/models.py`:
+```python
 
 
+# blog/models.py
+
+from django.db import models
+
+class Post(models.Model):
+    title = models.CharField(max_length=100)
+    content = models.TextField()
+
+    def __str__(self):
+        return self.title
+```
+- Create and Apply Migrations:
+```bash
+docker-compose run web python manage.py makemigrations
+docker-compose run web python manage.py migrate
+```
 
 
 ## Step 7: 3 Building and Running the Docker Containers
+- Building the Docker Images 
+```bash
+docker-compose build
+```
+
+- Running the Containers
+  - Start the Containers
+  ```bash
+  docker-compose up -d
+  ```
+  - The `-d` flag runs the containers in the detached mode
+
+- Applying the Migrations
+  - Run Migrations inside the web container:
+  ```bash
+  docker-compose exec web python manage.py migrate
+  ```
+  - Create a Superuser (optional):
+  ```bash
+  docker-compose exec web python manage.py createsuperuser
+  ```
 
 
 ## Step 8: Building the Frontend
+- Creating Views and Templates:
+  - Edit `blog/views.py`:
+  ```python  
+# blog/views.py
+
+from django.shortcuts import render, redirect
+from .models import Post
+
+def index(request):
+    posts = Post.objects.all()
+    return render(request, 'blog/index.html', {'posts': posts})
+
+def create_post(request):
+    if request.method == 'POST':
+        title = request.POST['title']
+        content = request.POST['content']
+        Post.objects.create(title=title, content=content)
+        return redirect('index')
+    return render(request, 'blog/create_post.html')
+  ```
+
+  - Create `blog/urls.py`:
+  ```python
+# blog/urls.py
+
+from django.urls import path
+from . import views
+
+urlpatterns = [
+    path('', views.index, name='index'),
+    path('create/', views.create_post, name='create_post'),
+]
+  ```
+
+  - Include `blog.urls` in `myproject/urls.py`
+  ```python
+# myproject/urls.py
+
+from django.contrib import admin
+from django.urls import path, include
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('', include('blog.urls')),
+]
+  ```
+
+  - Create Templates Director and Files:
+  ```bash
+mkdir -p blog/templates/blog
+  ```
+
+  - Create `index.html` in `blog/templates/blog/`:
+  ```html
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Posts</title>
+</head>
+<body>
+    <h1>Posts</h1>
+    <a href="{% url 'create_post' %}">Create New Post</a>
+    <ul>
+        {% for post in posts %}
+        <li>{{ post.title }}: {{ post.content }}</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
+  ```
+
+  - Create `create_post.html` in `blog/templates/blog/`:
+  ```html
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Create Post</title>
+</head>
+<body>
+    <h1>Create a New Post</h1>
+    <form method="post">
+        {% csrf_token %}
+        <label for="title">Title:</label><br>
+        <input type="text" id="title" name="title"><br><br>
+        <label for="content">Content:</label><br>
+        <textarea id="content" name="content"></textarea><br><br>
+        <input type="submit" value="Submit">
+    </form>
+</body>
+</html>
+  ```
+
+  - Connecting Frontend to Backend
+  Open your browser and navigate to `http://localhost:8000/`.
+
+
+
+
+
 
 # Step 9: 
