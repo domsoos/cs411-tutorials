@@ -8,14 +8,14 @@
 - Create a project directory:
   - For both Windows and macOS/Linux:
   ```bash
-  mkdir my_django_app && cd my_django_app=
+  mkdir my_django_app && cd my_django_app
   ```
 
 - Create a `requirements.txt` file:
-```text
+  ```text
 Django
 mysqlclient
-``` 
+  ``` 
 
 - Create the Django Project using Docker:
 We'll use a temporary Docker container to create the Django Project, ensuring the environment in consistent. 
@@ -39,6 +39,14 @@ FROM python:3.9-slim
 WORKDIR /usr/src/app
 
 # Install dependencies
+# we need gcc, make, mysqlclinet, and pkg-config to compile application
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    default-libmysqlclient-dev \
+    pkg-config \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install more dependencies
 COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 
@@ -74,7 +82,7 @@ services:
       - DATABASE_PASSWORD=password
 
   db:
-    image: mysql:5.7
+    image: mysql:8.0
     restart: always
     environment:
       MYSQL_DATABASE: django_app
@@ -110,8 +118,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    # Your apps
-    'blog',
+    'blog.apps.BlogConfig',  # Use the AppConfig class
 ]
 
 MIDDLEWARE = [
@@ -150,8 +157,11 @@ DATABASES = {
         'NAME': os.environ.get('DATABASE_NAME', 'django_app'),
         'USER': os.environ.get('DATABASE_USER', 'django_user'),
         'PASSWORD': os.environ.get('DATABASE_PASSWORD', 'password'),
-        'HOST': os.environ.get('DATABASE_HOST', 'localhost'),
+        'HOST': os.environ.get('DATABASE_HOST', 'db'),
         'PORT': '3306',
+        'OPTIONS': {
+            'auth_plugin': 'mysql_native_password',
+        },
     }
 }
 
@@ -350,6 +360,45 @@ mkdir -p blog/templates/blog
 </html>
   ```
 
+
+## Step 9: Run Migrations
+- Make migrtations:
+  ```bash
+  docker-compose exec web python manage.py makemigrations
+  ```
+
+- Apply Migrations:
+  ```bash
+  docker-compose exec web python manage.py migrate
+  ```
+
+  If everything is configured correctly, these commands should execute without errors.
+
+- Expected Structure:
+```markdown
+my_django_app/
+├── blog/
+│   ├── __init__.py
+│   ├── admin.py
+│   ├── apps.py
+│   ├── migrations/
+│   ├── models.py
+│   ├── tests.py
+│   ├── views.py
+│   └── templates/
+├── docker-compose.yml
+├── Dockerfile
+├── manage.py
+├── myproject/
+│   ├── __init__.py
+│   ├── asgi.py
+│   ├── settings.py
+│   ├── urls.py
+│   └── wsgi.py
+└── requirements.txt
+```
+
+
   - Connecting Frontend to Backend
   Open your browser and navigate to `http://localhost:8000/`.
 
@@ -357,5 +406,3 @@ mkdir -p blog/templates/blog
 
 
 
-
-# Step 9: 
