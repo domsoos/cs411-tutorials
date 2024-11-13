@@ -13,8 +13,8 @@
 
 - Create a `requirements.txt` file:
   ```text
-Django
-mysqlclient
+  Django
+  mysqlclient
   ``` 
 
 - Create the Django Project using Docker:
@@ -196,7 +196,6 @@ DATABASE_PASSWORD=password
 
 - Update the `docker-compose.yml` to load the environment variables:
 ```yml
-
 web:
   # ...
   env_file:
@@ -212,19 +211,9 @@ docker-compose run web python manage.py startapp blog
 - Verify the app has been created:
   - You should see a new directory named `blog` in your project root.
 
-- Add `'blog'` to `INSTALLED_APPS` in `myproject/settings.py`:
-```python
-INSTALLED_APPS = [
-    # ...
-    'blog',
-]
-```
-
 ## Step 6: Defining Models
 - Edit `blog/models.py`:
 ```python
-
-
 # blog/models.py
 
 from django.db import models
@@ -236,6 +225,7 @@ class Post(models.Model):
     def __str__(self):
         return self.title
 ```
+
 - Create and Apply Migrations:
 ```bash
 docker-compose run web python manage.py makemigrations
@@ -271,93 +261,93 @@ docker-compose build
 - Creating Views and Templates:
   - Edit `blog/views.py`:
   ```python  
-# blog/views.py
-
-from django.shortcuts import render, redirect
-from .models import Post
-
-def index(request):
-    posts = Post.objects.all()
-    return render(request, 'blog/index.html', {'posts': posts})
-
-def create_post(request):
-    if request.method == 'POST':
-        title = request.POST['title']
-        content = request.POST['content']
-        Post.objects.create(title=title, content=content)
-        return redirect('index')
-    return render(request, 'blog/create_post.html')
+  # blog/views.py
+  
+  from django.shortcuts import render, redirect
+  from .models import Post
+  
+  def index(request):
+      posts = Post.objects.all()
+      return render(request, 'blog/index.html', {'posts': posts})
+  
+  def create_post(request):
+      if request.method == 'POST':
+          title = request.POST['title']
+          content = request.POST['content']
+          Post.objects.create(title=title, content=content)
+          return redirect('index')
+      return render(request, 'blog/create_post.html')
   ```
 
   - Create `blog/urls.py`:
   ```python
-# blog/urls.py
-
-from django.urls import path
-from . import views
-
-urlpatterns = [
-    path('', views.index, name='index'),
-    path('create/', views.create_post, name='create_post'),
-]
+  # blog/urls.py
+  
+  from django.urls import path
+  from . import views
+  
+  urlpatterns = [
+      path('', views.index, name='index'),
+      path('create/', views.create_post, name='create_post'),
+  ]
   ```
 
   - Include `blog.urls` in `myproject/urls.py`
   ```python
-# myproject/urls.py
-
-from django.contrib import admin
-from django.urls import path, include
-
-urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('', include('blog.urls')),
-]
+  # myproject/urls.py
+  
+  from django.contrib import admin
+  from django.urls import path, include
+  
+  urlpatterns = [
+      path('admin/', admin.site.urls),
+      path('', include('blog.urls')),
+  ]
   ```
 
   - Create Templates Director and Files:
   ```bash
-mkdir -p blog/templates/blog
+  mkdir -p blog/templates/blog
   ```
 
   - Create `index.html` in `blog/templates/blog/`:
   ```html
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Posts</title>
-</head>
-<body>
-    <h1>Posts</h1>
-    <a href="{% url 'create_post' %}">Create New Post</a>
-    <ul>
-        {% for post in posts %}
-        <li>{{ post.title }}: {{ post.content }}</li>
-        {% endfor %}
-    </ul>
-</body>
-</html>
+  <!DOCTYPE html>
+  <html>
+  <head>
+      <title>Posts</title>
+  </head>
+  <body>
+      <h1>Posts</h1>
+      <a href="{% url 'create_post' %}">Create New Post</a>
+      <ul>
+          {% for post in posts %}
+          <li>{{ post.title }}: {{ post.content }}</li>
+          {% endfor %}
+      </ul>
+  </body>
+  </html>
   ```
 
   - Create `create_post.html` in `blog/templates/blog/`:
   ```html
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Create Post</title>
-</head>
-<body>
-    <h1>Create a New Post</h1>
-    <form method="post">
-        {% csrf_token %}
-        <label for="title">Title:</label><br>
-        <input type="text" id="title" name="title"><br><br>
-        <label for="content">Content:</label><br>
-        <textarea id="content" name="content"></textarea><br><br>
-        <input type="submit" value="Submit">
-    </form>
-</body>
-</html>
+  <!DOCTYPE html>
+  <html>
+  <head>
+      <title>Create Post</title>
+  </head>
+  <body>
+      <h1>Create a New Post</h1>
+      <form method="post">
+          {% csrf_token %}
+          <label for="title">Title:</label><br>
+          <input type="text" id="title" name="title"><br><br>
+          <label for="content">Content:</label><br>
+          <textarea id="content" name="content"></textarea><br><br>
+          <input type="submit" value="Submit">
+      </form>
+  </body>
+  </html>
   ```
 
 
